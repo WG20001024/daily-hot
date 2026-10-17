@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}我的日报{% endblock %}
+{% block content %}
+<section class="page-top">
+  <div>
+    <h1 class="page-title">我的日报 <span class="title-sub">{{ digest.date }} · 只读你关心的</span></h1>
+    <div class="date-nav">
+      <input type="date" id="digestDate" value="{{ digest.date }}"
+             max="{{ digest.date }}" onchange="gotoDigestDate(this.value)">
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-chip">📌 订阅平台 <b>{{ subs.platforms | length }}</b></div>
+    <div class="stat-chip">🔍 关键词 <b>{{ subs.keywords | length }}</b></div>
+    <div class="stat-chip">⭐ 收藏 <b>{{ favorites | length }}</b></div>
+  </div>
+</section>
+
+<!-- 订阅设置 -->
+<section class="sub-panel">
+  <details {% if not subs.platforms and not subs.keywords %}open{% endif %}>
+    <summary class="sub-summary">⚙️ 订阅设置（选择平台与关键词，日报只呈现相关内容）</summary>
+    <form method="post" action="/api/subscriptions" id="subForm"
+          onsubmit="saveSubscriptions(event)">
+      <div class="sub-platforms">
+        {% for p in platforms %}
+        <label class="sub-chip">
+          <input type="checkbox" name="platforms" value="{{ p.code }}"
+            {% if p.code in subs.platforms %}checked{% endif %}>
+          <span>{{ p.name }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <label class="sub-kw-label">关键词（逗号分隔，最多 20 个）
+        <input type="text" name="keywords" id="kwInput"
+               value="{{ subs.keywords | join(', ') }}"
+               placeholder="例如：AI, 高考, 新能源">
+      </label>
+      <div class="sub-actions">
+        <button class="btn btn-primary" type="submit">保存订阅</button>
+        <span class="sub-hint" id="subHint"></span>
+      </div>
+    </form>
+  </details>
+</section>
+
+{% if not subs.platforms and not subs.keywords %}
+<div class="banner banner-info">
+  👆 还没有设置订阅。展开上方「订阅设置」选择平台与关键词，即可生成你的个性化日报。
+</div>
+{% endif %}
+
+<!-- Telegram 推送绑定 -->
+<section class="sub-panel tg-panel">
+  <details {% if not current_user.tg_chat_id %}open{% endif %}>
+    <summary class="sub-summary">📲 绑定 Telegram（每日自动推送智能洞察到你的私聊）</summary>
+    <p class="tg-tip">向你的机器人发送任意消息，然后把 <b>chat_id</b> 填在下面（不知道 chat_id？可先发给 <code>@userinfobot</code> 查询）。绑定后每日抓取完成会自动推送。</p>
+    <div class="tg-row">
+      <input type="text" id="tgChatId" value="{{ current_user.tg_chat_id or '' }}"
+             placeholder="你的 Telegram chat_id">
+      <button class="btn btn-primary" onclick="bindTelegram()">绑定并测试</button>
+      <button class="btn btn-ghost" onclick="unbindTelegram()">解绑</button>
+      <button class="btn btn-ghost" onclick="sendToMe()">推送到我的 Telegram</button>
+    </div>
+    <span class="sub-hint" id="tgHint"></span>
+  </details>
+</section>
+
+<!-- 关键词命中 -->
+{% if digest.keyword_hits %}
+<section class="digest-section">
+  <h2 class="digest-heading">🔍 关键词命中 <span class="digest-count">{{ digest.keyword_hits | length }} 条</span></h2>
+  <div class="digest-items">
+    {% for it in digest.keyword_hits %}
+    <div class="digest-item">
+      <span class="digest-kw" title="命中关键词">{{ it.matched_keyword }}</span>
+      <a class="digest-title" href="/item/{{ it.id }}">{{ it.title }}</a>
+      <span class="digest-plat">{{ it.platform_name }} · 第 {{ it.rank_no }} 名</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- 订阅平台热榜 -->
+{% for code, group in digest.platforms.items() %}
+<section class="digest-section">
+  <h2 class="digest-heading">{{ group.name }} <span class="digest-count">Top {{ group['items'] | length }}</span></h2>
+  <ol class="digest-items">
+    {% for it in group['items'] %}
+    <li class="digest-item">
+      <span class="rank rank-{{ it.rank_no if it.rank_no <= 3 else 'n' }}">{{ it.rank_no }}</span>
+      <a class="digest-title" href="/item/{{ it.id }}">{{ it.title }}</a>
+      <span class="digest-plat">🔥 {{ it.heat_display or it.heat_value }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endfor %}
+
+{% if not digest.platforms and not digest.keyword_hits and (subs.platforms or subs.keywords) %}
+<div class="empty-state">
+  <p>📭</p>
+  <p>今日暂无所订阅内容（可能当日抓取未覆盖这些平台）</p>
+  <p><a class="btn btn-ghost" href="/history">看看往期日报</a></p>
+</div>
+{% endif %}
+
+<!-- 最近收藏 -->
+{% if favorites %}
+<section class="digest-section">
+  <h2 class="digest-heading">⭐ 最近收藏</h2>
+  <div class="digest-items">
+    {% for it in favorites[:5] %}
+    <div class="digest-item">
+      <a class="digest-title" href="/item/{{ it.id }}">{{ it.title }}</a>
+      <span class="digest-plat">{{ it.platform_name }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function gotoDigestDate(value) {
+  if (value) location.href = '/digest?date=' + value;
+}
+
+async function saveSubscriptions(event) {
+  event.preventDefault();
+  const form = document.getElementById('subForm');
+  const hint = document.getElementById('subHint');
+  const data = new FormData(form);
+  try {
+    const resp = await fetch('/api/subscriptions', { method: 'POST', body: data });
+    const res = await resp.json();
+    if (res.ok) {
+      hint.textContent = '✅ 已保存';
+      setTimeout(() => location.reload(), 600);
+    } else {
+      hint.textContent = '❌ 保存失败';
+    }
+  } catch (err) {
+    hint.textContent = '❌ 网络错误';
+  }
+}
+
+async function bindTelegram() {
+  const hint = document.getElementById('tgHint');
+  const chatId = document.getElementById('tgChatId').value.trim();
+  if (!chatId) { hint.textContent = '❌ 请填写 chat_id'; return; }
+  hint.textContent = '绑定中…';
+  try {
+    const resp = await fetch('/api/tg/bind', {
+      method: 'POST',
+      body: new URLSearchParams({ chat_id: chatId })
+    });
+    const res = await resp.json();
+    if (res.ok && res.sent) {
+      hint.textContent = '✅ 绑定成功，已发送测试消息';
+      setTimeout(() => location.reload(), 800);
+    } else if (res.saved && !res.sent) {
+      hint.textContent = '⚠️ chat_id 已保存但未送达：' + (res.error || '请检查 TG_BOT_TOKEN / chat_id');
+    } else {
+      hint.textContent = '❌ 绑定失败';
+    }
+  } catch (err) {
+    hint.textContent = '❌ 网络错误';
+  }
+}
+
+async function unbindTelegram() {
+  const hint = document.getElementById('tgHint');
+  try {
+    await fetch('/api/tg/bind', {
+      method: 'POST', body: new URLSearchParams({ chat_id: '' })
+    });
+    hint.textContent = '✅ 已解绑';
+    setTimeout(() => location.reload(), 600);
+  } catch (err) {
+    hint.textContent = '❌ 网络错误';
+  }
+}
+
+async function sendToMe() {
+  const hint = document.getElementById('tgHint');
+  hint.textContent = '推送中…';
+  try {
+    const resp = await fetch('/api/tg/send', { method: 'POST' });
+    const res = await resp.json();
+    if (res.ok) {
+      hint.textContent = '✅ 已推送到你的 Telegram';
+    } else {
+      hint.textContent = '❌ ' + (res.message || res.error || '推送失败');
+    }
+  } catch (err) {
+    hint.textContent = '❌ 网络错误';
+  }
+}
+</script>
+{% endblock %}

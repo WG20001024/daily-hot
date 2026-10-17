@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}热度趋势{% endblock %}
+{% block content %}
+<section class="page-top">
+  <div>
+    <h1 class="page-title">热度趋势 <span class="title-sub">近 {{ days }} 天持续在榜的话题</span></h1>
+    <div class="date-nav">
+      <a class="btn btn-ghost {{ 'active' if days == 7 }}" href="/trends?days=7">近 7 天</a>
+      <a class="btn btn-ghost {{ 'active' if days == 14 }}" href="/trends?days=14">近 14 天</a>
+      <a class="btn btn-ghost {{ 'active' if days == 30 }}" href="/trends?days=30">近 30 天</a>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-chip">📈 在榜话题 <b>{{ topics | length }}</b> 个</div>
+  </div>
+</section>
+
+{% if topics %}
+<div class="trend-list">
+  {% for t in topics %}
+  <div class="trend-card">
+    <div class="trend-info">
+      <div class="trend-title-row">
+        <a class="trend-title" href="/resonance?date={{ t.last_date }}">{{ t.title }}</a>
+        <span class="trend-days">在榜 {{ t.days }} 天</span>
+      </div>
+      <div class="trend-meta">
+        <span>📅 {{ t.first_date }} → {{ t.last_date }}</span>
+        <span>🌐 {{ t.platforms }}</span>
+        <span>🔥 最新热度 {{ t.latest_heat | round | int }}</span>
+        {% if t.heat_change > 0 %}
+        <span class="trend-up">↑ {{ t.heat_change | round(1) }}%</span>
+        {% elif t.heat_change < 0 %}
+        <span class="trend-down">↓ {{ t.heat_change | abs | round(1) }}%</span>
+        {% else %}
+        <span class="trend-flat">— 持平</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="trend-chart">
+      {% set pts = trend_points(t.series, width=140, height=40) %}
+      {% if pts %}
+      <svg viewBox="0 0 140 40" width="140" height="40" aria-hidden="true">
+        <polyline points="{{ pts }}" fill="none"
+          stroke="{{ '#d54941' if t.heat_change >= 0 else '#2f9e44' }}"
+          stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      <span class="trend-chart-label">{{ t.series[0].date | replace('-', '/') }} 起</span>
+      {% else %}
+      <span class="trend-chart-empty">数据不足</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <p>📈</p>
+  <p>近 {{ days }} 天暂无「持续在榜」的话题</p>
+  <p>趋势需要至少 2 天的数据积累，多抓取几日后再来看看</p>
+</div>
+{% endif %}
+{% endblock %}

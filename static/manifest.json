@@ -1,0 +1,50 @@
+{
+  "name": "每日热点 · 全平台热榜",
+  "short_name": "每日热点",
+  "description": "聚合微博、知乎、百度、B站、抖音等平台的每日热榜，智能洞察与 Telegram 推送。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f5f6f8",
+  "theme_color": "#d54941",
+  "lang": "zh-CN",
+  "categories": ["news", "entertainment", "social"],
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "今日热榜",
+      "short_name": "热榜",
+      "url": "/"
+    },
+    {
+      "name": "智能洞察",
+      "short_name": "洞察",
+      "url": "/insight"
+    },
+    {
+      "name": "全网热议",
+      "short_name": "热议",
+      "url": "/resonance"
+    }
+  ]
+}

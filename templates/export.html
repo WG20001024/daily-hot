@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}数据导出{% endblock %}
+{% block content %}
+<section class="page-top">
+  <div>
+    <h1 class="page-title">数据导出 <span class="title-sub">把归档的热榜带走</span></h1>
+  </div>
+  <div class="stats-row">
+    <div class="stat-chip">📅 可导出 <b>{{ dates | length }}</b> 个日期</div>
+    <div class="stat-chip">📦 单次上限 <b>{{ max_rows }}</b> 条</div>
+  </div>
+</section>
+
+<section class="export-panel">
+  <form id="exportForm" class="export-form" method="get" action="/api/export">
+    <div class="export-row">
+      <label>日期
+        <select name="date">
+          {% for d in dates %}
+          <option value="{{ d.snapshot_date }}"
+            {% if d.snapshot_date == latest_date %}selected{% endif %}>
+            {{ d.snapshot_date }}（{{ d.item_count }} 条）
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>平台
+        <select name="platform">
+          <option value="">全部平台</option>
+          {% for p in platforms %}
+          <option value="{{ p.code }}">{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <div class="export-row">
+      <label>关键词（选填，留空导出全部）
+        <input type="text" name="q" placeholder="例如：AI">
+      </label>
+      <label>条数上限
+        <input type="number" name="limit" value="{{ max_rows }}" min="1" max="{{ max_rows }}">
+      </label>
+    </div>
+    <label class="check-label">
+      <input type="checkbox" name="full" value="1">
+      包含新闻正文详情（导出体积更大）
+    </label>
+
+    <div class="export-actions">
+      <button class="btn btn-primary" type="submit" name="format" value="csv">⬇️ 导出 CSV（Excel 可直接打开）</button>
+      <button class="btn btn-ghost" type="submit" name="format" value="json">⬇️ 导出 JSON</button>
+    </div>
+  </form>
+</section>
+
+<section class="export-panel">
+  <h2 class="digest-heading">📡 订阅与接口</h2>
+  <div class="export-api-list">
+    <div class="export-api">
+      <code>/rss.xml</code>
+      <span>全平台最新一期热榜（默认 {{ 50 }} 条）</span>
+      <a class="btn btn-ghost btn-sm" href="/rss.xml" target="_blank" rel="noopener">打开</a>
+    </div>
+    <div class="export-api">
+      <code>/rss.xml?platform=weibo</code>
+      <span>只看指定平台（weibo / zhihu / baidu / bilibili / douyin / toutiao …）</span>
+      <a class="btn btn-ghost btn-sm" href="/rss.xml?platform=weibo" target="_blank" rel="noopener">打开</a>
+    </div>
+    <div class="export-api">
+      <code>/rss.xml?date={{ latest_date }}&amp;limit=100</code>
+      <span>指定日期与条数（上限 200）</span>
+      <a class="btn btn-ghost btn-sm" href="/rss.xml?date={{ latest_date }}&amp;limit=100" target="_blank" rel="noopener">打开</a>
+    </div>
+    <div class="export-api">
+      <code>/api/export?format=json&amp;date={{ latest_date }}</code>
+      <span>JSON 接口（参数：format / date / platform / q / full / limit）</span>
+      <a class="btn btn-ghost btn-sm" href="/api/export?format=json&amp;date={{ latest_date }}&amp;limit=20" target="_blank" rel="noopener">打开</a>
+    </div>
+    <div class="export-api">
+      <code>/api/search?q=折叠屏&amp;full=1</code>
+      <span>全文检索接口（含正文时 full=1）</span>
+      <a class="btn btn-ghost btn-sm" href="/api/search?q=%E6%8A%98%E5%8F%A0%E5%B1%8F&amp;full=1" target="_blank" rel="noopener">打开</a>
+    </div>
+  </div>
+  <p class="export-tip">
+    💡 RSS 可直接粘贴到阅读器（Feedly、Inoreader、RSSHub Radar 等）；
+    CSV 导出带 UTF-8 BOM，Excel 双击即可正常显示中文。
+  </p>
+</section>
+{% endblock %}

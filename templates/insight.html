@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}智能洞察 · {{ date }}{% endblock %}
+{% block content %}
+<section class="page-top">
+  <div class="date-panel">
+    <h1 class="page-title">{{ date }} <span class="title-sub">智能洞察</span></h1>
+    <div class="date-nav">
+      <input type="date" id="datePicker" value="{{ date }}" max="{{ date }}" onchange="gotoDate(this.value)">
+      <a class="btn btn-ghost" href="/trends?days={{ days }}">📈 热度趋势</a>
+      <a class="btn btn-ghost" href="/resonance?date={{ date }}">🌐 全网热议</a>
+      <button class="btn btn-primary" onclick="broadcastTG(this)" {% if not current_user %}disabled title="请登录后使用"{% elif not tg_bot_set %}disabled title="未配置 TG_BOT_TOKEN"{% elif not tg_chat_set %}disabled title="未配置全局 TG_CHAT_ID"{% endif %}>📲 推送到 Telegram</button>
+      <span class="tg-status" id="tgStatus"></span>
+    </div>
+  </div>
+  {% if not tg_bot_set %}
+  <div class="banner banner-warn" style="margin-top:12px;">⚠️ 未配置 <code>TG_BOT_TOKEN</code>，Telegram 推送功能未启用。</div>
+  {% elif not tg_chat_set %}
+  <div class="banner banner-warn" style="margin-top:12px;">⚠️ 未配置 <code>TG_CHAT_ID</code>，全局广播按钮不可用，但用户仍可在「我的日报」绑定个人 chat_id 接收推送。</div>
+  {% endif %}
+</section>
+
+<!-- AI 综述 -->
+<section class="insight-card summary-card">
+  <div class="insight-head">
+    <span class="insight-badge">🤖 AI 综述</span>
+    <span class="summary-src">{{ '大模型生成' if summary.source == 'llm' else '本地启发式生成' }}</span>
+  </div>
+  <p class="summary-text">{{ summary.text }}</p>
+</section>
+
+<!-- 情绪分布 -->
+<section class="insight-card">
+  <h2 class="insight-title">😊 情绪分布 <small>{{ sentiment.total }} 条热点</small></h2>
+  <div class="sentiment-bar">
+    {% set p = sentiment.counts.positive %}
+    {% set n = sentiment.counts.neutral %}
+    {% set ng = sentiment.counts.negative %}
+    {% set tot = sentiment.total or 1 %}
+    <div class="sb-seg sb-pos" style="width:{{ (100*p/tot)|round(1) }}%">正面 {{ p }}</div>
+    <div class="sb-seg sb-neu" style="width:{{ (100*n/tot)|round(1) }}%">中性 {{ n }}</div>
+    <div class="sb-seg sb-neg" style="width:{{ (100*ng/tot)|round(1) }}%">负面 {{ ng }}</div>
+  </div>
+  <div class="sentiment-cols">
+    <div class="sent-col">
+      <h3 class="sent-h pos">👍 正向热点</h3>
+      <ol class="sent-list">
+        {% for i in sentiment.positive[:8] %}
+        <li>
+          <a href="{{ i.url or '/item/' ~ i.id }}" target="_blank" rel="noopener">{{ i.title }}</a>
+          {% if i.pos_words %}<span class="word-tags">{{ i.pos_words|join(' · ') }}</span>{% endif %}
+        </li>
+        {% else %}<li class="sent-empty">暂无</li>{% endfor %}
+      </ol>
+    </div>
+    <div class="sent-col">
+      <h3 class="sent-h neg">⚠️ 负面 / 争议</h3>
+      <ol class="sent-list">
+        {% for i in sentiment.negative[:8] %}
+        <li>
+          <a href="{{ i.url or '/item/' ~ i.id }}" target="_blank" rel="noopener">{{ i.title }}</a>
+          {% if i.neg_words %}<span class="word-tags">{{ i.neg_words|join(' · ') }}</span>{% endif %}
+        </li>
+        {% else %}<li class="sent-empty">暂无</li>{% endfor %}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 话题生命周期 -->
+<section class="insight-card">
+  <h2 class="insight-title">🔥 话题生命周期 <small>近 {{ days }} 天持续在榜</small></h2>
+  <ul class="life-list">
+    {% for t in topics %}
+    <li class="life-item">
+      <span class="life-tag life-{{ t.lifecycle.label }}">{{ t.lifecycle.cn }}</span>
+      <a class="life-title" href="/search?q={{ t.title }}" target="_blank" rel="noopener">{{ t.title }}</a>
+      <span class="life-meta">在榜 {{ t.days }} 天 · {{ t.platforms }}</span>
+      <span class="life-spark">
+        <svg width="120" height="30" viewBox="0 0 120 30">
+          <polyline fill="none" stroke="{{ 'var(--primary)' if t.lifecycle.label in ('rising','peak') else ('var(--ok)' if t.lifecycle.label=='declining' else 'var(--text-3)') }}" stroke-width="2" points="{{ trend_points(t.series, 120, 30) or '0,15 120,15' }}"/>
+        </svg>
+      </span>
+    </li>
+    {% else %}
+    <li class="sent-empty">近 {{ days }} 天无持续在榜话题</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<!-- 跨平台共振 -->
+<section class="insight-card">
+  <h2 class="insight-title">🌐 跨平台共振 <small>多端同步发酵</small></h2>
+  <div class="reso-chips">
+    {% for r in resonance[:8] %}
+    <a class="reso-chip" href="/resonance?date={{ date }}" title="{{ r.platforms }}">
+      <span class="reso-count">{{ r.platform_count }}</span>
+      <span class="reso-title">{{ r.title }}</span>
+    </a>
+    {% else %}<span class="sent-empty">今日无跨平台共振话题</span>{% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function setStatus(text, ok) {
+  const el = document.getElementById('tgStatus');
+  el.textContent = text;
+  el.className = 'tg-status ' + (ok ? 'ok' : 'err');
+  setTimeout(() => { el.textContent = ''; el.className = 'tg-status'; }, 5000);
+}
+
+async function broadcastTG(btn) {
+  btn.disabled = true; btn.textContent = '推送中…';
+  try {
+    const resp = await fetch('/api/tg/broadcast', { method: 'POST' });
+    const res = await resp.json();
+    if (res.ok) {
+      setStatus('✅ 已推送到全局 Telegram 频道', true);
+    } else {
+      setStatus('❌ ' + (res.message || res.error || '未配置 TG_CHAT_ID'), false);
+    }
+  } catch (err) {
+    setStatus('❌ 网络错误', false);
+  } finally {
+    btn.disabled = false; btn.textContent = '📲 推送到 Telegram';
+  }
+}
+</script>
+{% endblock %}

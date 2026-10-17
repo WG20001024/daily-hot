@@ -1,0 +1,6 @@
+flask>=3.0
+pymysql>=1.1
+requests>=2.31
+apscheduler>=3.10
+# 生产模式（SERVER=gunicorn）使用；镜像内已装，Flask 模式下不会加载
+gunicorn>=21.2

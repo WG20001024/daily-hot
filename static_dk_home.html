@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026-10-17 热榜 · Daily Hot</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="alternate" type="application/rss+xml" title="每日热点 RSS" href="/rss.xml">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="description" content="聚合微博、知乎、百度、B站、抖音等平台的每日热榜，支持智能洞察、趋势共振、RSS 订阅与 Telegram 推送。">
+  <meta name="theme-color" content="#d54941" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="每日热点">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+  <script>
+    // 主题尽早应用，避免刷新闪烁：localStorage 优先，其次跟随系统
+    (function () {
+      try {
+        var saved = localStorage.getItem('dh-theme');
+        var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/">
+        <span class="logo-icon">🔥</span>
+        <span class="logo-text">每日热点</span>
+      </a>
+      <nav class="site-nav">
+        <a href="/" class="active">今日热榜</a>
+        <a href="/trends" class="">热度趋势</a>
+        <a href="/resonance" class="">全网热议</a>
+        <a href="/insight" class="">🧠 洞察</a>
+        <a href="/history" class="">历史归档</a>
+        <a href="/search" class="">搜索</a>
+        <a href="/export" class="">导出</a>
+        <a href="/feed" class="" title="RSS 订阅源预览">📡 RSS</a>
+        <button class="theme-toggle" id="themeToggle" type="button" title="切换深色 / 浅色模式" aria-label="切换主题">
+          <span class="icon-moon">🌙</span><span class="icon-sun">☀️</span>
+        </button>
+        
+        <a href="/login" class="">登录</a>
+        <a href="/register" class="nav-register">注册</a>
+        
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    
+<section class="page-top">
+  <div class="date-panel">
+    <h1 class="page-title">2026-10-17 <span class="title-sub">全站热榜</span></h1>
+    <div class="date-nav">
+      <input type="date" id="datePicker" value="2026-10-17"
+             max="2026-10-17" onchange="gotoDate(this.value)">
+      <a class="btn btn-ghost" href="/history">📅 历史归档</a>
+      <button class="btn btn-primary" id="refreshBtn" onclick="refreshData()">🔄 立即抓取</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-chip">📦 热点 <b>100</b> 条</div>
+    <div class="stat-chip">🌐 平台 <b>10</b> 个</div>
+    <div class="stat-chip">🧭 数据源 <b id="sourceChip">offline-demo</b></div>
+  </div>
+</section>
+
+
+<div class="banner banner-warn" id="demoBanner">
+  ⚠️ 当前展示为<b>离线演示数据</b>（在线热榜数据源暂不可达）。联网环境下点击「立即抓取」即可获取真实热榜。
+</div>
+
+
+<div class="toolbar">
+  <div class="tabs" id="platformTabs">
+    <button class="tab active" data-platform="all">全部</button>
+    
+    <button class="tab" data-platform="weibo">微博</button>
+    
+    <button class="tab" data-platform="zhihu">知乎</button>
+    
+    <button class="tab" data-platform="baidu">百度热搜</button>
+    
+    <button class="tab" data-platform="bilibili">哔哩哔哩</button>
+    
+    <button class="tab" data-platform="douyin">抖音</button>
+    
+    <button class="tab" data-platform="toutiao">今日头条</button>
+    
+    <button class="tab" data-platform="github">GitHub</button>
+    
+    <button class="tab" data-platform="v2ex">V2EX</button>
+    
+    <button class="tab" data-platform="ithome">IT之家</button>
+    
+    <button class="tab" data-platform="sspai">少数派</button>
+    
+  </div>
+  <div class="search-box">
+    <input type="search" id="searchInput" placeholder="搜索热点关键词…" oninput="filterItems()">
+  </div>
+</div>
+
+
+
+<div id="hotList">
+  
+  
+  
+  <section class="platform-card" data-platform="baidu">
+    <div class="platform-head">
+      <span class="platform-name">百度热搜</span>
+      <span class="platform-cat">新闻</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="今日天气：强冷空气继续南下">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            今日天气：强冷空气继续南下
+          </a>
+          
+          <div class="heat-bar" title="热度 489.0万">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/439"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">489.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="高铁新线路开通 全程缩至两小时">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            高铁新线路开通 全程缩至两小时
+          </a>
+          
+          <div class="heat-bar" title="热度 412.0万">
+            <div class="heat-fill" style="width: 84.3%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/122"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">412.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="医保药品目录调整正式公布">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            医保药品目录调整正式公布
+          </a>
+          
+          <div class="heat-bar" title="热度 376.0万">
+            <div class="heat-fill" style="width: 76.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/123"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">376.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="高校毕业生就业服务专项行动启动">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            高校毕业生就业服务专项行动启动
+          </a>
+          
+          <div class="heat-bar" title="热度 321.0万">
+            <div class="heat-fill" style="width: 65.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/124"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">321.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="以旧换新政策带动家电消费">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            以旧换新政策带动家电消费
+          </a>
+          
+          <div class="heat-bar" title="热度 287.0万">
+            <div class="heat-fill" style="width: 58.7%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/125"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">287.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="多地下调二套房首付比例">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            多地下调二套房首付比例
+          </a>
+          
+          <div class="heat-bar" title="热度 265.0万">
+            <div class="heat-fill" style="width: 54.2%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/126"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">265.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="义务教育课后服务将全面提质">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            义务教育课后服务将全面提质
+          </a>
+          
+          <div class="heat-bar" title="热度 234.0万">
+            <div class="heat-fill" style="width: 47.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/127"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">234.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="冬季旅游预订量同比增长">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            冬季旅游预订量同比增长
+          </a>
+          
+          <div class="heat-bar" title="热度 208.0万">
+            <div class="heat-fill" style="width: 42.5%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/128"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">208.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="首个国产深海采矿装备海试成功">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            首个国产深海采矿装备海试成功
+          </a>
+          
+          <div class="heat-bar" title="热度 187.0万">
+            <div class="heat-fill" style="width: 38.2%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/129"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">187.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="反诈宣传走进社区校园">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://top.baidu.com" target="_blank" rel="noopener">
+            反诈宣传走进社区校园
+          </a>
+          
+          <div class="heat-bar" title="热度 162.0万">
+            <div class="heat-fill" style="width: 33.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/130"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">162.0万</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+  
+  <section class="platform-card" data-platform="bilibili">
+    <div class="platform-head">
+      <span class="platform-name">哔哩哔哩</span>
+      <span class="platform-cat">视频</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="【硬核科普】大模型是怎么训练的">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            【硬核科普】大模型是怎么训练的
+          </a>
+          
+          <div class="heat-bar" title="热度 268.0万">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/131"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">268.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="用代码复刻经典游戏需要几步">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            用代码复刻经典游戏需要几步
+          </a>
+          
+          <div class="heat-bar" title="热度 223.0万">
+            <div class="heat-fill" style="width: 83.2%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/132"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">223.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="数码区up主实测新款耳机">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            数码区UP主实测新款耳机
+          </a>
+          
+          <div class="heat-bar" title="热度 198.0万">
+            <div class="heat-fill" style="width: 73.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/133"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">198.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="校园歌手大赛神仙现场合集">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            校园歌手大赛神仙现场合集
+          </a>
+          
+          <div class="heat-bar" title="热度 176.0万">
+            <div class="heat-fill" style="width: 65.7%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/134"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">176.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="从零开始手搓一个网站">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            从零开始手搓一个网站
+          </a>
+          
+          <div class="heat-bar" title="热度 154.0万">
+            <div class="heat-fill" style="width: 57.5%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/135"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">154.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="美食纪录片式 vlog 上线">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            美食纪录片式 Vlog 上线
+          </a>
+          
+          <div class="heat-bar" title="热度 138.0万">
+            <div class="heat-fill" style="width: 51.5%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/136"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">138.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="军训名场面盘点">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            军训名场面盘点
+          </a>
+          
+          <div class="heat-bar" title="热度 121.0万">
+            <div class="heat-fill" style="width: 45.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/137"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">121.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="程序员的第一台机械键盘">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            程序员的第一台机械键盘
+          </a>
+          
+          <div class="heat-bar" title="热度 108.0万">
+            <div class="heat-fill" style="width: 40.3%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/138"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">108.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="ai 绘画工具横评">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            AI 绘画工具横评
+          </a>
+          
+          <div class="heat-bar" title="热度 9.6万">
+            <div class="heat-fill" style="width: 3.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/139"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">9.6万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="猫咪行为学大揭秘">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.bilibili.com" target="_blank" rel="noopener">
+            猫咪行为学大揭秘
+          </a>
+          
+          <div class="heat-bar" title="热度 8.7万">
+            <div class="heat-fill" style="width: 3.2%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/140"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">8.7万</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+  
+  <section class="platform-card" data-platform="douyin">
+    <div class="platform-head">
+      <span class="platform-name">抖音</span>
+      <span class="platform-cat">视频</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="citywalk 路线推荐又更新了">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            citywalk 路线推荐又更新了
+          </a>
+          
+          <div class="heat-bar" title="热度 521.0万">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/141"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">521.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="大学生手工耿式发明走红">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            大学生手工耿式发明走红
+          </a>
+          
+          <div class="heat-bar" title="热度 462.0万">
+            <div class="heat-fill" style="width: 88.7%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/142"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">462.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="广场舞跳出新高度">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            广场舞跳出新高度
+          </a>
+          
+          <div class="heat-bar" title="热度 398.0万">
+            <div class="heat-fill" style="width: 76.4%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/143"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">398.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="挑战一分钟做早餐">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            挑战一分钟做早餐
+          </a>
+          
+          <div class="heat-bar" title="热度 354.0万">
+            <div class="heat-fill" style="width: 67.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/144"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">354.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="宠物医生暖心救治现场">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            宠物医生暖心救治现场
+          </a>
+          
+          <div class="heat-bar" title="热度 312.0万">
+            <div class="heat-fill" style="width: 59.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/145"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">312.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="返乡创业的年轻人">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            返乡创业的年轻人
+          </a>
+          
+          <div class="heat-bar" title="热度 287.0万">
+            <div class="heat-fill" style="width: 55.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/146"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">287.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="校园运动会高光时刻">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            校园运动会高光时刻
+          </a>
+          
+          <div class="heat-bar" title="热度 254.0万">
+            <div class="heat-fill" style="width: 48.8%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/147"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">254.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="传统手艺的新生">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            传统手艺的新生
+          </a>
+          
+          <div class="heat-bar" title="热度 221.0万">
+            <div class="heat-fill" style="width: 42.4%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/148"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">221.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="深夜emo歌单又添新歌">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            深夜emo歌单又添新歌
+          </a>
+          
+          <div class="heat-bar" title="热度 198.0万">
+            <div class="heat-fill" style="width: 38.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/149"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">198.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="钓鱼佬的快乐你想象不到">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.douyin.com" target="_blank" rel="noopener">
+            钓鱼佬的快乐你想象不到
+          </a>
+          
+          <div class="heat-bar" title="热度 176.0万">
+            <div class="heat-fill" style="width: 33.8%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/150"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">176.0万</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+  
+  <section class="platform-card" data-platform="github">
+    <div class="platform-head">
+      <span class="platform-name">GitHub</span>
+      <span class="platform-cat">开发者</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="trending/python: 每日 python 趋势榜">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending/python" target="_blank" rel="noopener">
+            trending/python: 每日 Python 趋势榜
+          </a>
+          
+          <div class="heat-bar" title="热度 1.9万">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/161"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.9万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="awesome-llm-apps: 大模型应用合集">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending" target="_blank" rel="noopener">
+            awesome-llm-apps: 大模型应用合集
+          </a>
+          
+          <div class="heat-bar" title="热度 1.5万">
+            <div class="heat-fill" style="width: 82.2%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/162"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.5万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="mysql-portable: 便携数据库工具">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending" target="_blank" rel="noopener">
+            mysql-portable: 便携数据库工具
+          </a>
+          
+          <div class="heat-bar" title="热度 1.3万">
+            <div class="heat-fill" style="width: 69.2%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/163"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.3万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="daily-hot-aggregator: 热榜聚合项目">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending" target="_blank" rel="noopener">
+            daily-hot-aggregator: 热榜聚合项目
+          </a>
+          
+          <div class="heat-bar" title="热度 1.1万">
+            <div class="heat-fill" style="width: 61.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/164"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.1万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="flask-best-practices: flask 最佳实践">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending" target="_blank" rel="noopener">
+            flask-best-practices: Flask 最佳实践
+          </a>
+          
+          <div class="heat-bar" title="热度 9800">
+            <div class="heat-fill" style="width: 53.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/165"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">9800</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="data-visualization: 数据可视化组件">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending" target="_blank" rel="noopener">
+            data-visualization: 数据可视化组件
+          </a>
+          
+          <div class="heat-bar" title="热度 8700">
+            <div class="heat-fill" style="width: 47.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/166"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">8700</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="open-source-crawler: 爬虫框架">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending" target="_blank" rel="noopener">
+            open-source-crawler: 爬虫框架
+          </a>
+          
+          <div class="heat-bar" title="热度 7600">
+            <div class="heat-fill" style="width: 41.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/167"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">7600</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="react-native-ui-kit: 移动端 ui 套件">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending" target="_blank" rel="noopener">
+            react-native-ui-kit: 移动端 UI 套件
+          </a>
+          
+          <div class="heat-bar" title="热度 6500">
+            <div class="heat-fill" style="width: 35.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/168"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">6500</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="tiny-compiler: 迷你编译器实现">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending" target="_blank" rel="noopener">
+            tiny-compiler: 迷你编译器实现
+          </a>
+          
+          <div class="heat-bar" title="热度 5900">
+            <div class="heat-fill" style="width: 31.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/169"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">5900</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="algorithm-notes: 算法笔记仓库">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://github.com/trending" target="_blank" rel="noopener">
+            algorithm-notes: 算法笔记仓库
+          </a>
+          
+          <div class="heat-bar" title="热度 5200">
+            <div class="heat-fill" style="width: 28.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/170"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">5200</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+  
+  <section class="platform-card" data-platform="ithome">
+    <div class="platform-head">
+      <span class="platform-name">IT之家</span>
+      <span class="platform-cat">科技</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="新一代旗舰芯片发布 性能提升明显">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            新一代旗舰芯片发布 性能提升明显
+          </a>
+          
+          <div class="heat-bar" title="热度 4.2万">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/181"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">4.2万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="操作系统大版本更新推送">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            操作系统大版本更新推送
+          </a>
+          
+          <div class="heat-bar" title="热度 3.6万">
+            <div class="heat-fill" style="width: 86.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/182"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">3.6万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="某品牌宣布终身系统维护承诺">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            某品牌宣布终身系统维护承诺
+          </a>
+          
+          <div class="heat-bar" title="热度 3.1万">
+            <div class="heat-fill" style="width: 74.3%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/183"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">3.1万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="国产固态硬盘价格持续下探">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            国产固态硬盘价格持续下探
+          </a>
+          
+          <div class="heat-bar" title="热度 2.8万">
+            <div class="heat-fill" style="width: 66.2%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/184"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">2.8万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="折叠屏铰链技术迎来突破">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            折叠屏铰链技术迎来突破
+          </a>
+          
+          <div class="heat-bar" title="热度 2.5万">
+            <div class="heat-fill" style="width: 58.3%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/185"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">2.5万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="浏览器内核更新 速度提升三成">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            浏览器内核更新 速度提升三成
+          </a>
+          
+          <div class="heat-bar" title="热度 2.1万">
+            <div class="heat-fill" style="width: 50.7%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/186"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">2.1万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="开源社区发布新版数据库">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            开源社区发布新版数据库
+          </a>
+          
+          <div class="heat-bar" title="热度 1.9万">
+            <div class="heat-fill" style="width: 44.5%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/187"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.9万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="ai pc 概念落地 销量攀升">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            AI PC 概念落地 销量攀升
+          </a>
+          
+          <div class="heat-bar" title="热度 1.6万">
+            <div class="heat-fill" style="width: 38.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/188"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.6万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="卫星互联网服务开始公测">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            卫星互联网服务开始公测
+          </a>
+          
+          <div class="heat-bar" title="热度 1.4万">
+            <div class="heat-fill" style="width: 33.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/189"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.4万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="新能源续航虚标问题调查">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.ithome.com" target="_blank" rel="noopener">
+            新能源续航虚标问题调查
+          </a>
+          
+          <div class="heat-bar" title="热度 1.2万">
+            <div class="heat-fill" style="width: 28.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/190"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.2万</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+  
+  <section class="platform-card" data-platform="sspai">
+    <div class="platform-head">
+      <span class="platform-name">少数派</span>
+      <span class="platform-cat">科技</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="效率工具周报：本周值得关注的 8 个更新">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            效率工具周报：本周值得关注的 8 个更新
+          </a>
+          
+          <div class="heat-bar" title="热度 1.6万">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/191"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.6万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="我的第二大脑搭建指南">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            我的第二大脑搭建指南
+          </a>
+          
+          <div class="heat-bar" title="热度 1.3万">
+            <div class="heat-fill" style="width: 83.5%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/192"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.3万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="如何用数据库管理读书笔记">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            如何用数据库管理读书笔记
+          </a>
+          
+          <div class="heat-bar" title="热度 1.1万">
+            <div class="heat-fill" style="width: 72.2%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/193"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">1.1万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="一台电脑用三年的保养心得">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            一台电脑用三年的保养心得
+          </a>
+          
+          <div class="heat-bar" title="热度 9800">
+            <div class="heat-fill" style="width: 62.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/194"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">9800</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="自动化让生活更简单">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            自动化让生活更简单
+          </a>
+          
+          <div class="heat-bar" title="热度 8600">
+            <div class="heat-fill" style="width: 54.4%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/195"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">8600</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="付费订阅到底值不值">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            付费订阅到底值不值
+          </a>
+          
+          <div class="heat-bar" title="热度 7400">
+            <div class="heat-fill" style="width: 46.8%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/196"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">7400</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="从零搭建个人知识库">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            从零搭建个人知识库
+          </a>
+          
+          <div class="heat-bar" title="热度 6300">
+            <div class="heat-fill" style="width: 39.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/197"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">6300</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="手机摄影快速入门">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            手机摄影快速入门
+          </a>
+          
+          <div class="heat-bar" title="热度 5500">
+            <div class="heat-fill" style="width: 34.8%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/198"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">5500</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="年度总结模板分享">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            年度总结模板分享
+          </a>
+          
+          <div class="heat-bar" title="热度 4800">
+            <div class="heat-fill" style="width: 30.4%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/199"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">4800</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="桌面改造全记录">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://sspai.com" target="_blank" rel="noopener">
+            桌面改造全记录
+          </a>
+          
+          <div class="heat-bar" title="热度 4100">
+            <div class="heat-fill" style="width: 25.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/200"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">4100</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+  
+  <section class="platform-card" data-platform="toutiao">
+    <div class="platform-head">
+      <span class="platform-name">今日头条</span>
+      <span class="platform-cat">新闻</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="前三季度经济数据发布">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            前三季度经济数据发布
+          </a>
+          
+          <div class="heat-bar" title="热度 534.0万">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/469"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">534.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="多地优化住房公积金政策">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            多地优化住房公积金政策
+          </a>
+          
+          <div class="heat-bar" title="热度 421.0万">
+            <div class="heat-fill" style="width: 78.8%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/152"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">421.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="商业航天发射任务圆满成功">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            商业航天发射任务圆满成功
+          </a>
+          
+          <div class="heat-bar" title="热度 387.0万">
+            <div class="heat-fill" style="width: 72.5%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/153"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">387.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="秋粮收购工作全面展开">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            秋粮收购工作全面展开
+          </a>
+          
+          <div class="heat-bar" title="热度 345.0万">
+            <div class="heat-fill" style="width: 64.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/154"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">345.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="人工智能产业发展规划出台">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            人工智能产业发展规划出台
+          </a>
+          
+          <div class="heat-bar" title="热度 312.0万">
+            <div class="heat-fill" style="width: 58.4%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/155"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">312.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="重点城市楼市成交回暖">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            重点城市楼市成交回暖
+          </a>
+          
+          <div class="heat-bar" title="热度 287.0万">
+            <div class="heat-fill" style="width: 53.7%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/156"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">287.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="跨境电商助力外贸新动能">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            跨境电商助力外贸新动能
+          </a>
+          
+          <div class="heat-bar" title="热度 254.0万">
+            <div class="heat-fill" style="width: 47.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/157"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">254.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="文旅市场持续升温">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            文旅市场持续升温
+          </a>
+          
+          <div class="heat-bar" title="热度 221.0万">
+            <div class="heat-fill" style="width: 41.4%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/158"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">221.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="制造业数字化转型加速">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            制造业数字化转型加速
+          </a>
+          
+          <div class="heat-bar" title="热度 198.0万">
+            <div class="heat-fill" style="width: 37.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/159"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">198.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="县域经济焕发新活力">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.toutiao.com" target="_blank" rel="noopener">
+            县域经济焕发新活力
+          </a>
+          
+          <div class="heat-bar" title="热度 176.0万">
+            <div class="heat-fill" style="width: 33.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/160"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">176.0万</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+  
+  <section class="platform-card" data-platform="v2ex">
+    <div class="platform-head">
+      <span class="platform-name">V2EX</span>
+      <span class="platform-cat">开发者</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="大家现在用什么方案做每日定时任务？">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            大家现在用什么方案做每日定时任务？
+          </a>
+          
+          <div class="heat-bar" title="热度 980">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/171"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">980</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="自建热榜聚合站，求拍砖">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            自建热榜聚合站，求拍砖
+          </a>
+          
+          <div class="heat-bar" title="热度 870">
+            <div class="heat-fill" style="width: 88.8%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/172"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">870</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="mysql 8.0 移除 --install 参数了？">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            MySQL 8.0 移除 --install 参数了？
+          </a>
+          
+          <div class="heat-bar" title="热度 760">
+            <div class="heat-fill" style="width: 77.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/173"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">760</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="分享一个便携式开发环境思路">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            分享一个便携式开发环境思路
+          </a>
+          
+          <div class="heat-bar" title="热度 690">
+            <div class="heat-fill" style="width: 70.4%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/174"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">690</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="flask 3.1 升级体验记录">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            Flask 3.1 升级体验记录
+          </a>
+          
+          <div class="heat-bar" title="热度 620">
+            <div class="heat-fill" style="width: 63.3%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/175"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">620</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="求推荐轻量级定时任务方案">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            求推荐轻量级定时任务方案
+          </a>
+          
+          <div class="heat-bar" title="热度 540">
+            <div class="heat-fill" style="width: 55.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/176"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">540</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="用 python 写爬虫的心得">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            用 Python 写爬虫的心得
+          </a>
+          
+          <div class="heat-bar" title="热度 480">
+            <div class="heat-fill" style="width: 49.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/177"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">480</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="机械键盘选购纠结中">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            机械键盘选购纠结中
+          </a>
+          
+          <div class="heat-bar" title="热度 430">
+            <div class="heat-fill" style="width: 43.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/178"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">430</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="远程办公两年体验分享">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            远程办公两年体验分享
+          </a>
+          
+          <div class="heat-bar" title="热度 390">
+            <div class="heat-fill" style="width: 39.8%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/179"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">390</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="国产数据库使用体验讨论">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.v2ex.com" target="_blank" rel="noopener">
+            国产数据库使用体验讨论
+          </a>
+          
+          <div class="heat-bar" title="热度 350">
+            <div class="heat-fill" style="width: 35.7%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/180"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">350</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+  
+  <section class="platform-card" data-platform="weibo">
+    <div class="platform-head">
+      <span class="platform-name">微博</span>
+      <span class="platform-cat">社交</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="秋季新品发布会集中亮相 折叠屏成焦点">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            秋季新品发布会集中亮相 折叠屏成焦点
+          </a>
+          
+          <div class="heat-bar" title="热度 452.6万">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/419"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">452.6万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="全国多地气温创下半年新低">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            全国多地气温创下半年新低
+          </a>
+          
+          <div class="heat-bar" title="热度 398.0万">
+            <div class="heat-fill" style="width: 87.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/102"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">398.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="国产大模型开源生态持续壮大">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            国产大模型开源生态持续壮大
+          </a>
+          
+          <div class="heat-bar" title="热度 351.0万">
+            <div class="heat-fill" style="width: 77.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/103"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">351.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="城市马拉松热潮背后的全民健身">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            城市马拉松热潮背后的全民健身
+          </a>
+          
+          <div class="heat-bar" title="热度 287.0万">
+            <div class="heat-fill" style="width: 63.4%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/104"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">287.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="新能源车渗透率再创新高">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            新能源车渗透率再创新高
+          </a>
+          
+          <div class="heat-bar" title="热度 254.0万">
+            <div class="heat-fill" style="width: 56.1%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/105"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">254.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="校园食品安全问题引发关注">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            校园食品安全问题引发关注
+          </a>
+          
+          <div class="heat-bar" title="热度 231.0万">
+            <div class="heat-fill" style="width: 51.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/106"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">231.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="热门综艺收官夜收视夺冠">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            热门综艺收官夜收视夺冠
+          </a>
+          
+          <div class="heat-bar" title="热度 198.0万">
+            <div class="heat-fill" style="width: 43.7%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/107"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">198.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="ai 辅助诊疗进入更多三甲医院">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            AI 辅助诊疗进入更多三甲医院
+          </a>
+          
+          <div class="heat-bar" title="热度 176.0万">
+            <div class="heat-fill" style="width: 38.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/108"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">176.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="跨省通办事项再扩容">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            跨省通办事项再扩容
+          </a>
+          
+          <div class="heat-bar" title="热度 152.0万">
+            <div class="heat-fill" style="width: 33.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/109"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">152.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="深夜食堂为何让人念念不忘">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://s.weibo.com" target="_blank" rel="noopener">
+            深夜食堂为何让人念念不忘
+          </a>
+          
+          <div class="heat-bar" title="热度 134.0万">
+            <div class="heat-fill" style="width: 29.6%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/110"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">134.0万</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+  
+  <section class="platform-card" data-platform="zhihu">
+    <div class="platform-head">
+      <span class="platform-name">知乎</span>
+      <span class="platform-cat">社交</span>
+      <span class="platform-count">10 条</span>
+    </div>
+    <ol class="hot-items">
+      
+      <li class="hot-item" data-title="如何看待下一代折叠屏手机轻薄化趋势？">
+        <span class="rank rank-1">1</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            如何看待下一代折叠屏手机轻薄化趋势？
+          </a>
+          
+          <div class="heat-bar" title="热度 312.0万">
+            <div class="heat-fill" style="width: 100.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/429"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">312.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="为什么说 python 是 ai 时代的通用语言？">
+        <span class="rank rank-2">2</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            为什么说 Python 是 AI 时代的通用语言？
+          </a>
+          
+          <div class="heat-bar" title="热度 286.0万">
+            <div class="heat-fill" style="width: 91.7%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/112"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">286.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="普通人有必要学习大模型应用开发吗？">
+        <span class="rank rank-3">3</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            普通人有必要学习大模型应用开发吗？
+          </a>
+          
+          <div class="heat-bar" title="热度 245.0万">
+            <div class="heat-fill" style="width: 78.5%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/113"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">245.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="秋招季如何选择第一份工作？">
+        <span class="rank rank-n">4</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            秋招季如何选择第一份工作？
+          </a>
+          
+          <div class="heat-bar" title="热度 221.0万">
+            <div class="heat-fill" style="width: 70.8%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/114"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">221.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="如何评价开源社区对国产软件的推动？">
+        <span class="rank rank-n">5</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            如何评价开源社区对国产软件的推动？
+          </a>
+          
+          <div class="heat-bar" title="热度 198.0万">
+            <div class="heat-fill" style="width: 63.5%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/115"
+             title="查看已保存的详细信息">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">198.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="长期熬夜对身体的影响到底有多大？">
+        <span class="rank rank-n">6</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            长期熬夜对身体的影响到底有多大？
+          </a>
+          
+          <div class="heat-bar" title="热度 187.0万">
+            <div class="heat-fill" style="width: 59.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/116"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">187.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="mysql 8.0 有哪些值得关注的新特性？">
+        <span class="rank rank-n">7</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            MySQL 8.0 有哪些值得关注的新特性？
+          </a>
+          
+          <div class="heat-bar" title="热度 165.0万">
+            <div class="heat-fill" style="width: 52.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/117"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">165.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="年轻人为什么开始热衷城市漫步？">
+        <span class="rank rank-n">8</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            年轻人为什么开始热衷城市漫步？
+          </a>
+          
+          <div class="heat-bar" title="热度 143.0万">
+            <div class="heat-fill" style="width: 45.8%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/118"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">143.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="家庭理财如何做到稳健配置？">
+        <span class="rank rank-n">9</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            家庭理财如何做到稳健配置？
+          </a>
+          
+          <div class="heat-bar" title="热度 128.0万">
+            <div class="heat-fill" style="width: 41.0%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/119"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">128.0万</span>
+        </div>
+      </li>
+      
+      <li class="hot-item" data-title="有哪些提升编程效率的好习惯？">
+        <span class="rank rank-n">10</span>
+        <div class="hot-main">
+          <a class="hot-title" href="https://www.zhihu.com" target="_blank" rel="noopener">
+            有哪些提升编程效率的好习惯？
+          </a>
+          
+          <div class="heat-bar" title="热度 115.0万">
+            <div class="heat-fill" style="width: 36.9%"></div>
+          </div>
+        </div>
+        <div class="hot-side">
+          <a class="detail-link" href="/item/120"
+             title="查看详情页">📄</a>
+          
+          <a class="fav-btn fav-btn-guest" href="/login?next=/" title="登录后可收藏">☆</a>
+          
+          <span class="heat-value">115.0万</span>
+        </div>
+      </li>
+      
+    </ol>
+  </section>
+  
+</div>
+
+
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>每日热点 · Python + Flask + MySQL 驱动 · 数据每日自动抓取归档</p>
+    </div>
+  </footer>
+  <script src="/static/js/app.js"></script>
+  
+  <script>
+    // ---------- 主题切换 ----------
+    (function () {
+      var btn = document.getElementById('themeToggle');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        var next = cur === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('dh-theme', next); } catch (e) {}
+      });
+      // 跟随系统：仅当用户未手动选择时
+      try {
+        var mq = window.matchMedia('(prefers-color-scheme: dark)');
+        mq.addEventListener('change', function (e) {
+          if (!localStorage.getItem('dh-theme')) {
+            document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+          }
+        });
+      } catch (e) {}
+    })();
+
+    // ---------- PWA：注册 Service Worker ----------
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/static/sw.js').catch(function () {});
+      });
+    }
+
+    // ---------- PWA：安装提示 ----------
+    (function () {
+      var KEY = 'dh-install-dismissed';
+      var deferred = null;
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferred = e;
+        if (localStorage.getItem(KEY)) return;
+        if (!document.querySelector('.install-tip')) {
+          var tip = document.createElement('div');
+          tip.className = 'install-tip';
+          tip.innerHTML = '<span class="tip-text">把每日热点装到手机主屏，像 App 一样用，断网也能看历史</span>' +
+            '<span class="tip-actions">' +
+            '<button class="btn btn-primary" id="doInstall">安装</button>' +
+            '<button class="btn btn-ghost" id="skipInstall">以后再说</button>' +
+            '</span><button class="btn-close" id="closeInstall" aria-label="关闭">×</button>';
+          document.body.appendChild(tip);
+          var dismiss = function () {
+            try { localStorage.setItem(KEY, '1'); } catch (err) {}
+            tip.remove();
+          };
+          document.getElementById('skipInstall').addEventListener('click', dismiss);
+          document.getElementById('closeInstall').addEventListener('click', dismiss);
+          document.getElementById('doInstall').addEventListener('click', function () {
+            dismiss();
+            if (deferred) {
+              deferred.prompt();
+              deferred.userChoice.then(function () { deferred = null; });
+            }
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

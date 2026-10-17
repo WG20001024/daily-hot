@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}全网热议{% endblock %}
+{% block content %}
+<section class="page-top">
+  <div>
+    <h1 class="page-title">全网热议 <span class="title-sub">{{ current_date }} · 跨平台共振话题</span></h1>
+    <div class="date-nav">
+      <input type="date" id="resDate" value="{{ current_date }}"
+             max="{{ current_date }}" onchange="gotoResDate(this.value)">
+      <a class="btn btn-ghost" href="/trends">📈 热度趋势</a>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-chip">🌐 共振话题 <b>{{ topics | length }}</b> 个</div>
+  </div>
+</section>
+
+{% if topics %}
+<div class="res-list">
+  {% for t in topics %}
+  <div class="res-card">
+    <div class="res-head">
+      <span class="res-count res-count-{{ t.platform_count if t.platform_count <= 3 else 'n' }}"
+            title="覆盖 {{ t.platform_count }} 个平台">{{ t.platform_count }}</span>
+      <a class="res-title" href="/resonance?date={{ current_date }}#topic-{{ loop.index }}">{{ t.title }}</a>
+      <span class="res-heat">🔥 {{ t.max_heat | round | int }}</span>
+    </div>
+    <div class="res-platforms">
+      {% for p in t.platforms.split(',') %}
+      <span class="res-plat-tag">{{ p.strip() }}</span>
+      {% endfor %}
+    </div>
+    <div class="res-items">
+      {% for it in t['items'] %}
+      <a class="res-item" href="/item/{{ it.id }}">
+        <span class="res-item-plat">{{ it.platform_name }}</span>
+        <span class="res-item-rank">#{{ it.rank_no }}</span>
+        <span class="res-item-title">{{ it.title }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <p>🌐</p>
+  <p>当日暂无「跨平台共振」话题</p>
+  <p>同一话题需要同时出现在 2 个以上平台热榜才会被收录</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function gotoResDate(value) {
+  if (value) location.href = '/resonance?date=' + value;
+}
+</script>
+{% endblock %}

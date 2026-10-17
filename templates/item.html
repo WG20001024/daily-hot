@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}{{ item.title if item else '未找到' }}{% endblock %}
+{% block content %}
+{% if not item %}
+<div class="empty-state">
+  <p>🫥</p>
+  <p>条目不存在或已被清理</p>
+  <p><a class="btn btn-ghost" href="/">返回首页</a></p>
+</div>
+{% else %}
+<article class="detail-page">
+  <div class="detail-back">
+    <a class="btn btn-ghost" href="/?date={{ item.snapshot_date }}">← 返回热榜</a>
+  </div>
+
+  <header class="detail-header">
+    <div class="detail-meta-top">
+      <span class="platform-cat">{{ item.platform_name }}</span>
+      <span class="rank rank-{{ item.rank_no if item.rank_no <= 3 else 'n' }}">{{ item.rank_no }}</span>
+      <span class="detail-date">{{ item.snapshot_date }}</span>
+      {% if is_demo %}<span class="demo-tag">演示数据</span>{% endif %}
+    </div>
+    <h1 class="detail-title">{{ item.title }}</h1>
+    <div class="detail-meta">
+      <span>🔥 热度 {{ item.heat_display or item.heat_value }}</span>
+      {% if detail and detail.author %}<span>✍️ {{ detail.author }}</span>{% endif %}
+      {% if detail and detail.published_at %}<span>🕐 {{ detail.published_at }}</span>{% endif %}
+      {% if detail and detail.source_site %}<span>🌐 {{ detail.source_site }}</span>{% endif %}
+      {% if current_user %}
+      <button class="fav-btn fav-btn-lg {{ 'is-active' if favorited }}"
+              data-item="{{ item.id }}" onclick="toggleFavorite(this)"
+              title="{{ '取消收藏' if favorited else '收藏此热点' }}">★ {{ '已收藏' if favorited else '收藏' }}</button>
+      {% else %}
+      <a class="fav-btn fav-btn-lg fav-btn-guest" href="/login?next=/item/{{ item.id }}"
+         title="登录后可收藏">☆ 收藏</a>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if trend | length >= 2 %}
+  {% set first_heat = trend[0].heat_value %}
+  {% set last_heat = trend[-1].heat_value %}
+  {% set change = ((last_heat - first_heat) / first_heat * 100) if first_heat else 0 %}
+  <section class="trend-box">
+    <div class="trend-box-head">
+      <span class="trend-box-title">📈 热度走势</span>
+      <span class="trend-box-range">{{ trend[0].date }} → {{ trend[-1].date }} · 共 {{ trend | length }} 个数据点</span>
+      {% if change > 0 %}
+      <span class="trend-up">↑ {{ change | round(1) }}%</span>
+      {% elif change < 0 %}
+      <span class="trend-down">↓ {{ change | abs | round(1) }}%</span>
+      {% else %}
+      <span class="trend-flat">— 持平</span>
+      {% endif %}
+    </div>
+    {% set pts = trend_points(trend, width=680, height=64) %}
+    <svg class="trend-svg" viewBox="0 0 680 64" preserveAspectRatio="none" aria-hidden="true">
+      <polyline points="{{ pts }}" fill="none"
+        stroke="{{ '#d54941' if change >= 0 else '#2f9e44' }}"
+        stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>
+    <div class="trend-axis">
+      {% for p in trend %}
+      <span class="trend-axis-item">{{ p.date | replace('-', '/') }} · {{ p.heat_value | round | int }}</span>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if detail and detail.cover_url %}
+  <img class="detail-cover" src="{{ detail.cover_url }}" alt="封面" loading="lazy">
+  {% endif %}
+
+  {% if detail and detail.content %}
+  <section class="detail-content">
+    {% for para in detail.content.split('\n') %}
+    <p>{{ para }}</p>
+    {% endfor %}
+  </section>
+  {% elif detail and detail.fetch_status == 'failed' %}
+  <div class="banner banner-warn">⚠️ 该热点的详细信息抓取失败（源站可能限制访问），以下为列表页摘要。</div>
+  {% if item.summary %}<section class="detail-content"><p>{{ item.summary }}</p></section>{% endif %}
+  {% elif item.summary %}
+  <section class="detail-content"><p>{{ item.summary }}</p></section>
+  {% else %}
+  <div class="banner banner-warn">📭 该热点暂无详细信息。在线数据源环境下，抓取任务会自动补充；也可点击下方链接前往源站查看原文。</div>
+  {% endif %}
+
+  {% if item.url %}
+  <div class="detail-actions">
+    <a class="btn btn-primary" href="{{ item.url }}" target="_blank" rel="noopener">🔗 查看原文</a>
+    <span class="detail-url">{{ item.url }}</span>
+  </div>
+  {% endif %}
+
+  {% if detail %}
+  <footer class="detail-footer">
+    详细信息已于 {{ detail.fetched_at }} 保存至数据库（hot_item_details 表）
+  </footer>
+  {% endif %}
+</article>
+{% endif %}
+{% endblock %}

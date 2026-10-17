@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}{{ feed_title }}{% endblock %}
+{% block content %}
+<section class="page-top">
+  <span class="badge" style="display:inline-flex;align-items:center;gap:6px;background:#fdeceb;color:#d54941;border:1px solid #ffd8d3;border-radius:999px;padding:3px 14px;font-size:13px;font-weight:600;">📡 RSS 订阅源</span>
+  <h1 class="page-title" style="margin-top:8px;">{{ feed_title }}</h1>
+  <p class="page-subtitle" style="color:#646a73;font-size:14px;margin-bottom:12px;">{{ feed_description }}</p>
+  <div class="date-nav" style="margin-bottom:16px;">
+    <a class="btn btn-primary" href="{{ rss_url }}" target="_blank" rel="noopener">复制 /rss.xml 链接到 RSS 阅读器</a>
+    <a class="btn btn-ghost" href="/export">📤 导出数据</a>
+  </div>
+</section>
+
+<div class="tip" style="background:#e8f3ff;border:1px solid #91caff;color:#0958d9;border-radius:10px;padding:12px 16px;font-size:13.5px;margin-bottom:24px;">
+  <b>使用提示：</b>这是 RSS 的服务端 HTML 预览页。把 <code style="background:#fff;border-radius:4px;padding:1px 6px;">/rss.xml</code> 的链接复制到 RSS 阅读器即可自动追更；支持参数
+  <code style="background:#fff;border-radius:4px;padding:1px 6px;">?platform=weibo</code>、
+  <code style="background:#fff;border-radius:4px;padding:1px 6px;">?date=2026-10-17</code>、
+  <code style="background:#fff;border-radius:4px;padding:1px 6px;">?limit=100</code>。
+  部分浏览器（如 Edge 无头模式或某些安全模式）不会自动渲染 XSLT 样式，可直接浏览此 HTML 页面。
+</div>
+
+{% if items %}
+<ol class="feed-items" style="list-style:none;display:flex;flex-direction:column;gap:12px;padding:0;">
+  {% for item in items %}
+  <li style="background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 1px 3px rgba(31,35,41,.06),0 4px 12px rgba(31,35,41,.05);">
+    <a href="{{ item.url or '/item/' + item.id|string }}" target="_blank" rel="noopener" style="color:#1f2329;font-weight:600;font-size:15.5px;text-decoration:none;">
+      [{{ item.platform_name }} #{{ item.rank_no }}] {{ item.title }}
+    </a>
+    <div style="font-size:12.5px;color:#8f959e;margin:6px 0;font-variant-numeric:tabular-nums;">
+      <span style="background:#f5f6f8;border-radius:999px;padding:2px 10px;margin-right:8px;">{{ item.platform_name }}</span>
+      <span>{{ item.snapshot_date }}</span>
+      {% if item.heat_display or item.heat_value %}<span style="margin-left:8px;">热度：{{ item.heat_display or item.heat_value }}</span>{% endif %}
+    </div>
+    {% if item.summary %}<p style="font-size:13.5px;color:#646a73;margin-top:6px;">{{ item.summary }}</p>{% endif %}
+  </li>
+  {% endfor %}
+</ol>
+{% else %}
+<div class="empty-state">
+  <p>📭 当前条件下暂无数据</p>
+  <p>尝试切换日期或平台，或点击「立即抓取」获取最新热榜</p>
+</div>
+{% endif %}
+
+<p style="text-align:center;color:#8f959e;font-size:12.5px;margin-top:32px;">Powered by Daily Hot · Python + Flask + MySQL</p>
+{% endblock %}

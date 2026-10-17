@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+{% block title %}个人中心{% endblock %}
+{% block content %}
+<section class="page-top">
+  <div>
+    <h1 class="page-title">👤 个人中心 <span class="title-sub">{{ current_user.username }} 的聚合面板</span></h1>
+    <div class="me-stats">
+      <span class="me-chip">⭐ 收藏 <b>{{ fav_count }}</b></span>
+      <span class="me-chip">📌 订阅平台 <b>{{ subs.platforms | length }}</b></span>
+      <span class="me-chip">🔍 关键词 <b>{{ subs.keywords | length }}</b></span>
+      <span class="me-chip">📲 Telegram <b>{{ '已绑定' if my_bound_chat else '未绑定' }}</b></span>
+    </div>
+  </div>
+</section>
+
+<!-- 标签页 -->
+<nav class="me-tabs">
+  <button class="me-tab {{ 'active' if tab == 'digest' }}" data-tab="digest">📰 我的日报</button>
+  <button class="me-tab {{ 'active' if tab == 'favorites' }}" data-tab="favorites">⭐ 我的收藏</button>
+  <button class="me-tab {{ 'active' if tab == 'telegram' }}" data-tab="telegram">📲 我的 Telegram</button>
+  <button class="me-tab {{ 'active' if tab == 'mail' }}" data-tab="mail">✉️ 邮件推送</button>
+  <button class="me-tab {{ 'active' if tab == 'settings' }}" data-tab="settings">⚙️ 站点设置</button>
+</nav>
+
+<!-- ============ 我的日报 ============ -->
+<section class="me-panel {{ 'show' if tab == 'digest' }}" data-panel="digest">
+  <div class="me-panel-head">
+    <h2 class="insight-title">📰 我的日报 <small>{{ digest.date }} · 只读你关心的</small></h2>
+    <div class="me-panel-actions">
+      <input type="date" id="digestDate" value="{{ digest.date }}" max="{{ digest.date }}" onchange="gotoDigestDate(this.value)">
+    </div>
+  </div>
+
+  <details class="sub-panel" {{ 'open' if not subs.platforms and not subs.keywords }}>
+    <summary class="sub-summary">⚙️ 订阅设置（选择平台与关键词，日报只呈现相关内容）</summary>
+    <form method="post" action="/api/subscriptions" id="subForm" onsubmit="saveSubscriptions(event)">
+      <div class="sub-platforms">
+        {% for p in platforms %}
+        <label class="sub-chip">
+          <input type="checkbox" name="platforms" value="{{ p.code }}" {{ 'checked' if p.code in subs.platforms }}>
+          <span>{{ p.name }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <label class="sub-kw-label">关键词（逗号分隔，最多 20 个）
+        <input type="text" name="keywords" id="kwInput" value="{{ subs.keywords | join(', ') }}" placeholder="例如：AI, 高考, 新能源">
+      </label>
+      <div class="sub-actions">
+        <button class="btn btn-primary" type="submit">保存订阅</button>
+        <span class="sub-hint" id="subHint"></span>
+      </div>
+    </form>
+  </details>
+
+  {% if not subs.platforms and not subs.keywords %}
+  <div class="banner banner-info">👆 还没有设置订阅。展开上方「订阅设置」选择平台与关键词，即可生成你的个性化日报。</div>
+  {% endif %}
+
+  {% if digest.keyword_hits %}
+  <section class="digest-section">
+    <h3 class="digest-heading">🔍 关键词命中 <span class="digest-count">{{ digest.keyword_hits | length }} 条</span></h3>
+    <div class="digest-items">
+      {% for it in digest.keyword_hits %}
+      <div class="digest-item">
+        <span class="digest-kw">{{ it.matched_keyword }}</span>
+        <a class="digest-title" href="/item/{{ it.id }}">{{ it.title }}</a>
+        <span class="digest-plat">{{ it.platform_name }} · 第 {{ it.rank_no }} 名</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% for code, group in digest.platforms.items() %}
+  <section class="digest-section">
+    <h3 class="digest-heading">{{ group.name }} <span class="digest-count">Top {{ group['items'] | length }}</span></h3>
+    <ol class="digest-items">
+      {% for it in group['items'] %}
+      <li class="digest-item">
+        <span class="rank rank-{{ it.rank_no if it.rank_no <= 3 else 'n' }}">{{ it.rank_no }}</span>
+        <a class="digest-title" href="/item/{{ it.id }}">{{ it.title }}</a>
+        <span class="digest-plat">🔥 {{ it.heat_display or it.heat_value }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% endfor %}
+
+  {% if not digest.platforms and not digest.keyword_hits and (subs.platforms or subs.keywords) %}
+  <div class="empty-state">
+    <p>📭</p>
+    <p>今日暂无所订阅内容（可能当日抓取未覆盖这些平台）</p>
+  </div>
+  {% endif %}
+
+  {% if favorites %}
+  <section class="digest-section">
+    <h3 class="digest-heading">⭐ 最近收藏</h3>
+    <div class="digest-items">
+      {% for it in favorites[:5] %}
+      <div class="digest-item">
+        <a class="digest-title" href="/item/{{ it.id }}">{{ it.title }}</a>
+        <span class="digest-plat">{{ it.platform_name }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</section>
+
+<!-- ============ 我的收藏 ============ -->
+<section class="me-panel {{ 'show' if tab == 'favorites' }}" data-panel="favorites">
+  <div class="me-panel-head">
+    <h2 class="insight-title">⭐ 我的收藏 <small>随时回看关心的话题</small></h2>
+    <span class="me-panel-actions">共 {{ fav_items | length }} 条</span>
+  </div>
+  {% if fav_items %}
+  <div class="fav-list">
+    {% for it in fav_items %}
+    <div class="fav-card">
+      <span class="rank rank-{{ it.rank_no if it.rank_no <= 3 else 'n' }}">{{ it.rank_no }}</span>
+      <div class="fav-main">
+        <a class="hot-title" href="/item/{{ it.id }}">{{ it.title }}</a>
+        <div class="fav-meta">
+          <span class="platform-cat">{{ it.platform_name }}</span>
+          <span class="fav-date">📅 {{ it.snapshot_date }}</span>
+          <span class="fav-heat">🔥 {{ it.heat_display or it.heat_value }}</span>
+          {% if it.note %}<span class="fav-note">📝 {{ it.note }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="fav-actions">
+        <a class="detail-link" href="/item/{{ it.id }}" title="查看详情">📄</a>
+        <button class="fav-btn is-active" data-item="{{ it.id }}" onclick="toggleFavorite(this)" title="取消收藏">★</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>⭐</p>
+    <p>还没有收藏任何热点</p>
+    <p>在热榜或详情页点击 ★ 按钮即可收藏</p>
+    <p><a class="btn btn-primary" href="/">去逛逛热榜</a></p>
+  </div>
+  {% endif %}
+</section>
+
+<!-- ============ 我的 Telegram ============ -->
+<section class="me-panel {{ 'show' if tab == 'telegram' }}" data-panel="telegram">
+  <div class="me-panel-head">
+    <h2 class="insight-title">📲 我的 Telegram <small>绑定后每日自动推送智能洞察</small></h2>
+  </div>
+
+  <div class="me-card">
+    <p class="set-tip">填写你的 Telegram chat_id，保存后会写入站点设置并绑定到当前账号（{{ current_user.username }}）。不知道 chat_id？见下方说明或用校验工具验证。</p>
+    <div class="tg-row">
+      <input type="text" id="myChat" value="{{ my_tg_chat_id or my_bound_chat or '' }}" placeholder="我的 chat_id，例如 123456789">
+      <button class="btn btn-primary" onclick="bindMine()">保存并绑定</button>
+    </div>
+    <span class="tg-status" id="myStatus"></span>
+    {% if my_bound_chat %}<p class="set-note">当前账号已绑定：<code>{{ my_bound_chat }}</code></p>
+    {% else %}<p class="set-note">当前账号尚未绑定。</p>{% endif %}
+  </div>
+
+  <div class="me-card">
+    <h3 class="insight-title">🔍 校验 chat_id</h3>
+    <p class="set-tip">填好 token 与要验证的 chat_id，点「发送测试消息」：能收到私聊即说明配置正确。</p>
+    <div class="tg-row">
+      <input type="text" id="vToken" value="{{ tg_token }}" placeholder="TG_BOT_TOKEN">
+      <input type="text" id="vChat" placeholder="要验证的 chat_id">
+      <button class="btn btn-primary" onclick="verifyChat()">发送测试消息</button>
+    </div>
+    <span class="tg-status" id="vStatus"></span>
+  </div>
+
+  <div class="me-card">
+    <h3 class="insight-title">❓ 如何获取 chat_id</h3>
+    <div class="howto">
+      <p><b>① 先拿 token</b>：找 <code>@BotFather</code> 发 <code>/newbot</code> 创建机器人，拿到 <code>TG_BOT_TOKEN</code>。</p>
+      <p><b>② 拿个人 chat_id（推荐，最可靠）</b></p>
+      <p>① 打开你刚创建的机器人对话，发一条消息（如 <code>hi</code>）；② 浏览器打开
+         <code>https://api.telegram.org/bot&lt;你的TOKEN&gt;/getUpdates</code>；
+         ③ 在 JSON 里找 <code>"from":{"id":1234567890,...}</code>，这个 <code>id</code> 就是你的 chat_id。</p>
+      <p><b>③ 群组 / 频道 ID（全局广播用，通常是负数）</b></p>
+      <p>把机器人拉进群组/频道并设为管理员，发一条消息，再用同样的 <code>getUpdates</code> 找
+         <code>"chat":{"id":-100xxxx}</code>。</p>
+      <p class="set-tip">⚠️ <code>@userinfobot</code> 现已改为 AI 聊天机器人，不再返回用户 ID，不建议再用。私聊 ID 是正数、群组/频道是负数，别填反。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 邮件推送 ============ -->
+<section class="me-panel {{ 'show' if tab == 'mail' }}" data-panel="mail">
+  <div class="me-panel-head">
+    <h2 class="insight-title">✉️ 邮件推送 <small>每日洞察发送到你的邮箱</small></h2>
+  </div>
+
+  <div class="me-card">
+    <h3 class="insight-title">📮 我的收件邮箱</h3>
+    <p class="set-tip">填写后每日抓取完成会自动发送到该邮箱；保存时会发一封测试邮件确认可用。</p>
+    <div class="tg-row">
+      <input type="email" id="myEmail" value="{{ my_email or '' }}" placeholder="你的邮箱，例如 123456@qq.com">
+      <button class="btn btn-primary" onclick="bindMail()">保存并测试</button>
+      <button class="btn btn-ghost" onclick="sendMailNow()">立即推送今日洞察</button>
+    </div>
+    <span class="tg-status" id="mailStatus"></span>
+    {% if my_email %}<p class="set-note">当前账号邮箱：<code>{{ my_email }}</code></p>
+    {% else %}<p class="set-note">当前账号尚未绑定邮箱。</p>{% endif %}
+  </div>
+
+  <div class="me-card">
+    <h3 class="insight-title">⚙️ SMTP 配置 <small>QQ 邮箱示例已预填</small></h3>
+    <p class="set-tip">QQ 邮箱需先在「设置 → 账户」开启 SMTP 服务并生成<b>授权码</b>，此处填授权码而非 QQ 密码。</p>
+    <form id="smtpForm">
+      <div class="smtp-grid">
+        <label class="set-label">SMTP 服务器
+          <input type="text" name="smtp_host" value="{{ smtp_host or 'smtp.qq.com' }}" placeholder="smtp.qq.com">
+        </label>
+        <label class="set-label">端口
+          <input type="text" name="smtp_port" value="{{ smtp_port or '465' }}" placeholder="465">
+        </label>
+        <label class="set-label">发信账号
+          <input type="text" name="smtp_user" value="{{ smtp_user }}" placeholder="123456@qq.com">
+        </label>
+        <label class="set-label">授权码（不是 QQ 密码）
+          <input type="text" name="smtp_password" value="{{ smtp_password }}" placeholder="16 位授权码">
+        </label>
+      </div>
+      <label class="set-label" style="display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" name="smtp_ssl" value="1" {{ 'checked' if smtp_use_ssl }} style="width:auto;"> 使用 SSL（QQ 邮箱 465 端口必选）
+      </label>
+      <div class="set-actions">
+        <button class="btn btn-primary" type="button" onclick="saveSmtp()">保存 SMTP 配置</button>
+        <input type="email" name="test_to" id="testTo" value="{{ my_email or '' }}" placeholder="测试收件邮箱（留空则仅保存）" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;">
+        <button class="btn btn-ghost" type="button" onclick="saveSmtp(true)">保存并发测试邮件</button>
+      </div>
+      <span class="tg-status" id="smtpStatus"></span>
+    </form>
+  </div>
+
+  <div class="me-card">
+    <h3 class="insight-title">❓ QQ 邮箱授权码怎么拿</h3>
+    <div class="howto">
+      <p><b>① 登录 QQ 邮箱网页版</b>：进入 <code>mail.qq.com</code>，用 QQ 号密码登录。</p>
+      <p><b>② 开启 SMTP 服务</b>：点「设置 → 账户与安全 → 账户」，找到「POP3/SMTP 服务」，点击<b>开启</b>，按提示用手机短信验证。</p>
+      <p><b>③ 生成授权码</b>：开启后会显示一串 16 位授权码（形如 <code>abcdefghijklmnop</code>），<b>复制它</b>——这就是 SMTP_PASSWORD 要填的内容，不是你的 QQ 密码。</p>
+      <p><b>④ 填入本页</b>：服务器 <code>smtp.qq.com</code>、端口 <code>465</code>、勾选 SSL，账号填你的 QQ 邮箱，密码栏填刚才的授权码。</p>
+      <p class="set-tip">授权码等同于邮箱密码，请勿外泄；若怀疑泄露可在 QQ 邮箱设置中重新生成。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 站点设置 ============ -->
+<section class="me-panel {{ 'show' if tab == 'settings' }}" data-panel="settings">
+  <div class="me-panel-head">
+    <h2 class="insight-title">⚙️ 站点设置 <small>Telegram 推送配置</small></h2>
+  </div>
+  <div class="me-card">
+    <form method="post" action="/settings" id="tgForm">
+      <label class="set-label">TG_BOT_TOKEN（@BotFather 获取）
+        <input type="text" name="tg_token" value="{{ tg_token }}" placeholder="123456:ABC-DEF...">
+      </label>
+      <label class="set-label">TG_CHAT_ID（全局广播频道/群组 ID，留空则仅个人绑定推送）
+        <input type="text" name="tg_chat_id" value="{{ tg_chat_id }}" placeholder="-1001234567890">
+      </label>
+      <div class="set-actions">
+        <button class="btn btn-primary" type="submit">保存配置</button>
+        {% if tg_bot_env or tg_chat_env %}<span class="set-note">⚠️ 当前显示的是环境变量值，保存后将以网页配置为准。</span>{% endif %}
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.me-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.me-panel').forEach(p => p.classList.toggle('show', p.dataset.panel === name));
+  history.replaceState(null, '', '/me?tab=' + name);
+}
+document.querySelectorAll('.me-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+function gotoDigestDate(value) {
+  if (value) location.href = '/me?tab=digest&date=' + value;
+}
+function showStatus(id, text, ok) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'tg-status ' + (ok ? 'ok' : 'err');
+  setTimeout(() => { el.textContent = ''; el.className = 'tg-status'; }, 8000);
+}
+async function saveSubscriptions(event) {
+  event.preventDefault();
+  const data = new FormData(document.getElementById('subForm'));
+  try {
+    const resp = await fetch('/api/subscriptions', { method: 'POST', body: data });
+    const res = await resp.json();
+    if (res.ok) {
+      document.getElementById('subHint').textContent = '✅ 已保存';
+      setTimeout(() => location.reload(), 600);
+    } else {
+      document.getElementById('subHint').textContent = '❌ 保存失败';
+    }
+  } catch (err) {
+    document.getElementById('subHint').textContent = '❌ 网络错误';
+  }
+}
+async function bindMine() {
+  const chat = document.getElementById('myChat').value.trim();
+  const status = document.getElementById('myStatus');
+  if (!chat) { showStatus('myStatus', '❌ 请填写我的 chat_id', false); return; }
+  status.textContent = '绑定中…'; status.className = 'tg-status';
+  try {
+    const resp = await fetch('/api/tg/bind-mine', { method: 'POST', body: new URLSearchParams({ chat_id: chat }) });
+    const res = await resp.json();
+    if (res.ok && res.sent) { showStatus('myStatus', '✅ 绑定成功，测试消息已送达', true); setTimeout(() => location.reload(), 900); }
+    else if (res.ok) { showStatus('myStatus', '⚠️ 已保存并绑定，但未送达：' + (res.error || '请检查 token / chat_id'), false); }
+    else { showStatus('myStatus', '❌ ' + (res.message || res.error || '绑定失败'), false); }
+  } catch (err) {
+    showStatus('myStatus', '❌ 网络错误', false);
+  }
+}
+async function verifyChat() {
+  const token = document.getElementById('vToken').value.trim();
+  const chat = document.getElementById('vChat').value.trim();
+  const status = document.getElementById('vStatus');
+  if (!token || !chat) { showStatus('vStatus', '❌ 请填写 token 和 chat_id', false); return; }
+  status.textContent = '发送中…'; status.className = 'tg-status';
+  try {
+    const resp = await fetch('/api/tg/verify', { method: 'POST', body: new URLSearchParams({ token, chat_id: chat }) });
+    const res = await resp.json();
+    if (res.ok) showStatus('vStatus', '✅ 校验成功，测试消息已送达', true);
+    else showStatus('vStatus', '❌ ' + (res.message || res.error || '校验失败'), false);
+  } catch (err) {
+    showStatus('vStatus', '❌ 网络错误', false);
+  }
+}
+async function bindMail() {
+  const email = document.getElementById('myEmail').value.trim();
+  const status = document.getElementById('mailStatus');
+  status.textContent = '发送中…'; status.className = 'tg-status';
+  try {
+    const resp = await fetch('/api/mail/bind', { method: 'POST', body: new URLSearchParams({ email }) });
+    const res = await resp.json();
+    if (res.ok && res.sent) { showStatus('mailStatus', '✅ 邮箱已绑定，测试邮件已送达', true); setTimeout(() => location.reload(), 900); }
+    else if (res.ok) { showStatus('mailStatus', '⚠️ 邮箱已保存但未送达：' + (res.error || '请检查 SMTP 配置'), false); }
+    else { showStatus('mailStatus', '❌ ' + (res.message || res.error || '绑定失败'), false); }
+  } catch (err) {
+    showStatus('mailStatus', '❌ 网络错误', false);
+  }
+}
+async function sendMailNow() {
+  const status = document.getElementById('mailStatus');
+  status.textContent = '推送中…'; status.className = 'tg-status';
+  try {
+    const resp = await fetch('/api/mail/send', { method: 'POST' });
+    const res = await resp.json();
+    if (res.ok) showStatus('mailStatus', '✅ 今日洞察已发送到邮箱', true);
+    else showStatus('mailStatus', '❌ ' + (res.message || res.error || '推送失败'), false);
+  } catch (err) {
+    showStatus('mailStatus', '❌ 网络错误', false);
+  }
+}
+async function saveSmtp(withTest) {
+  const form = document.getElementById('smtpForm');
+  const data = new FormData(form);
+  if (!form.querySelector('[name="smtp_ssl"]').checked) data.append('smtp_ssl', '0');
+  if (!withTest) data.delete('test_to');
+  const status = document.getElementById('smtpStatus');
+  status.textContent = '保存中…'; status.className = 'tg-status';
+  try {
+    const resp = await fetch('/api/mail/smtp', { method: 'POST', body: data });
+    const res = await resp.json();
+    if (res.ok && res.sent) { showStatus('smtpStatus', '✅ SMTP 可用，测试邮件已送达', true); setTimeout(() => location.reload(), 900); }
+    else if (res.ok && withTest) { showStatus('smtpStatus', '⚠️ 已保存但未送达：' + (res.error || '请检查授权码'), false); }
+    else if (res.ok) { showStatus('smtpStatus', '✅ SMTP 配置已保存', true); }
+    else { showStatus('smtpStatus', '❌ ' + (res.message || res.error || '保存失败'), false); }
+  } catch (err) {
+    showStatus('smtpStatus', '❌ 网络错误', false);
+  }
+}
+</script>
+{% endblock %}

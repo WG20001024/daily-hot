@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}站点设置{% endblock %}
+{% block content %}
+<section class="page-top">
+  <h1 class="page-title">⚙️ 站点设置 <span class="title-sub">Telegram 推送配置</span></h1>
+</section>
+
+<!-- Telegram 主配置 -->
+<section class="insight-card">
+  <h2 class="insight-title">📲 Telegram 机器人</h2>
+  <form method="post" action="/settings" id="tgForm">
+    <label class="set-label">TG_BOT_TOKEN（@BotFather 获取）
+      <input type="text" name="tg_token" value="{{ tg_token }}" placeholder="123456:ABC-DEF...">
+    </label>
+    <label class="set-label">TG_CHAT_ID（全局广播频道/群组 ID，留空则仅个人绑定推送）
+      <input type="text" name="tg_chat_id" value="{{ tg_chat_id }}" placeholder="-1001234567890">
+    </label>
+    <div class="set-actions">
+      <button class="btn btn-primary" type="submit">保存配置</button>
+      {% if tg_bot_env or tg_chat_env %}<span class="set-note">⚠️ 当前显示的是环境变量值，保存后将以网页配置为准。</span>{% endif %}
+    </div>
+  </form>
+</section>
+
+<!-- 我的 Telegram -->
+<section class="insight-card">
+  <h2 class="insight-title">🙋 我的 Telegram <small>站点级默认 chat_id，可一键绑定当前账号</small></h2>
+  <p class="set-tip">保存后下方「一键绑定」会把它同时写入站点设置和当前登录账号，之后每日抓取自动推送到这个私聊。</p>
+  <div class="tg-row">
+    <input type="text" name="my_tg_chat_id" id="myChat" value="{{ my_tg_chat_id }}" placeholder="我的 chat_id，例如 123456789">
+    <button class="btn btn-primary" onclick="bindMine()">一键绑定到我的账号</button>
+  </div>
+  <span class="tg-status" id="myStatus"></span>
+  {% if my_bound_chat %}<p class="set-note">当前账号已绑定：<code>{{ my_bound_chat }}</code></p>{% endif %}
+</section>
+
+<!-- chat_id 校验工具 -->
+<section class="insight-card">
+  <h2 class="insight-title">🔍 校验 chat_id</h2>
+  <p class="set-tip">填好 token 与要验证的 chat_id，点「发送测试消息」：能收到私聊即说明配置正确。</p>
+  <div class="tg-row">
+    <input type="text" id="vToken" placeholder="TG_BOT_TOKEN">
+    <input type="text" id="vChat" placeholder="要验证的 chat_id">
+    <button class="btn btn-primary" onclick="verifyChat()">发送测试消息</button>
+  </div>
+  <span class="tg-status" id="vStatus"></span>
+</section>
+
+<!-- 如何获取 chat_id -->
+<section class="insight-card">
+  <h2 class="insight-title">❓ 如何获取 chat_id</h2>
+  <div class="howto">
+    <p><b>① 先拿 token</b>：找 <code>@BotFather</code> 发 <code>/newbot</code> 创建机器人，拿到 <code>TG_BOT_TOKEN</code>。</p>
+    <p><b>② 拿个人 chat_id（推荐，最可靠）</b></p>
+    <p>① 打开你刚创建的机器人对话，发一条消息（如 <code>hi</code>）；② 浏览器打开
+       <code>https://api.telegram.org/bot&lt;你的TOKEN&gt;/getUpdates</code>；
+       ③ 在 JSON 里找 <code>"from":{"id":1234567890,...}</code>，这个 <code>id</code> 就是你的 chat_id。</p>
+    <p><b>③ 群组 / 频道 ID（全局广播用，通常是负数）</b></p>
+    <p>把机器人拉进群组/频道并设为管理员，发一条消息，再用同样的 <code>getUpdates</code> 找
+       <code>"chat":{"id":-100xxxx}</code>。</p>
+    <p class="set-tip">⚠️ <code>@userinfobot</code> 现已改为 AI 聊天机器人，不再返回用户 ID，不建议再用。私聊 ID 是正数、群组/频道是负数，别填反。</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showStatus(id, text, ok) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'tg-status ' + (ok ? 'ok' : 'err');
+  setTimeout(() => { el.textContent = ''; el.className = 'tg-status'; }, 8000);
+}
+async function verifyChat() {
+  const token = document.getElementById('vToken').value.trim();
+  const chat = document.getElementById('vChat').value.trim();
+  const status = document.getElementById('vStatus');
+  if (!token || !chat) { showStatus('vStatus', '❌ 请填写 token 和 chat_id', false); return; }
+  status.textContent = '发送中…'; status.className = 'tg-status';
+  try {
+    const resp = await fetch('/api/tg/verify', {
+      method: 'POST',
+      body: new URLSearchParams({ token, chat_id: chat })
+    });
+    const res = await resp.json();
+    if (res.ok) showStatus('vStatus', '✅ 校验成功，测试消息已送达', true);
+    else showStatus('vStatus', '❌ ' + (res.message || res.error || '校验失败'), false);
+  } catch (err) {
+    showStatus('vStatus', '❌ 网络错误', false);
+  }
+}
+async function bindMine() {
+  const chat = document.getElementById('myChat').value.trim();
+  const status = document.getElementById('myStatus');
+  if (!chat) { showStatus('myStatus', '❌ 请填写我的 chat_id', false); return; }
+  status.textContent = '绑定中…'; status.className = 'tg-status';
+  try {
+    const resp = await fetch('/api/tg/bind-mine', {
+      method: 'POST',
+      body: new URLSearchParams({ chat_id: chat })
+    });
+    const res = await resp.json();
+    if (res.ok && res.sent) {
+      showStatus('myStatus', '✅ 绑定成功，测试消息已送达', true);
+      setTimeout(() => location.reload(), 900);
+    } else if (res.ok) {
+      showStatus('myStatus', '⚠️ 已保存并绑定，但未送达：' + (res.error || '请检查 token / chat_id'), false);
+    } else {
+      showStatus('myStatus', '❌ ' + (res.message || res.error || '绑定失败'), false);
+    }
+  } catch (err) {
+    showStatus('myStatus', '❌ 网络错误', false);
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}我的收藏{% endblock %}
+{% block content %}
+<section class="page-top">
+  <div>
+    <h1 class="page-title">我的收藏 <span class="title-sub">随时回看关心的话题</span></h1>
+  </div>
+  <div class="stats-row">
+    <div class="stat-chip">⭐ 收藏 <b>{{ items | length }}</b> 条</div>
+    <a class="btn btn-ghost" href="/digest">📰 我的日报</a>
+  </div>
+</section>
+
+{% if items %}
+<div class="fav-list">
+  {% for it in items %}
+  <div class="fav-card">
+    <span class="rank rank-{{ it.rank_no if it.rank_no <= 3 else 'n' }}">{{ it.rank_no }}</span>
+    <div class="fav-main">
+      <a class="hot-title" href="/item/{{ it.id }}">{{ it.title }}</a>
+      <div class="fav-meta">
+        <span class="platform-cat">{{ it.platform_name }}</span>
+        <span class="fav-date">📅 {{ it.snapshot_date }}</span>
+        <span class="fav-heat">🔥 {{ it.heat_display or it.heat_value }}</span>
+        {% if it.note %}<span class="fav-note" title="备注">📝 {{ it.note }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="fav-actions">
+      <a class="detail-link" href="/item/{{ it.id }}" title="查看详情">📄</a>
+      <button class="fav-btn is-active" data-item="{{ it.id }}"
+              onclick="toggleFavorite(this)" title="取消收藏">★</button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <p>⭐</p>
+  <p>还没有收藏任何热点</p>
+  <p>在热榜或详情页点击 ★ 按钮即可收藏</p>
+  <p><a class="btn btn-primary" href="/">去逛逛热榜</a></p>
+</div>
+{% endif %}
+{% endblock %}

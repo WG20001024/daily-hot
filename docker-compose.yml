@@ -1,0 +1,87 @@
+# =============================================================
+# 每日热点 —— 一键运行（拉取公共镜像，无需自己构建）
+#
+#    docker compose up -d        # 拉取 ghcr.io/wg20001024/daily-hot + 官方 MySQL 8 并启动
+#    docker compose logs -f web  # 查看日志
+#    docker compose down         # 停止（数据保留在卷里）
+#
+# 公共镜像：ghcr.io/wg20001024/daily-hot:latest （任何人无需登录即可拉取）
+# 源码 / 自行构建：https://github.com/WG20001024/daily-hot
+#
+# 可选：复制 .env.example 为 .env 后修改，compose 会自动读取其中的变量。
+# =============================================================
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: daily-hot-mysql
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+08:00
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      MYSQL_DATABASE: ${DB_NAME:-daily_hot}
+      TZ: Asia/Shanghai
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h 127.0.0.1 -uroot -p"$$MYSQL_ROOT_PASSWORD" --silent
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    networks:
+      - hot-net
+
+  web:
+    image: ghcr.io/wg20001024/daily-hot:latest
+    container_name: daily-hot-web
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # ---- 数据库 ----
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      DB_NAME: ${DB_NAME:-daily_hot}
+      # ---- Web ----
+      HOST: "::"
+      PORT: "5000"
+      SITE_URL: ${SITE_URL:-http://localhost:5000}
+      SECRET_KEY: ${SECRET_KEY:-}
+      # ---- 定时抓取（东八区每天 08:00）----
+      TZ: Asia/Shanghai
+      CRAWL_HOUR: ${CRAWL_HOUR:-8}
+      CRAWL_MINUTE: ${CRAWL_MINUTE:-0}
+      # ---- 可选：AI 综述 ----
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
+      # ---- 可选：Telegram 推送 ----
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN:-}
+      TG_CHAT_ID: ${TG_CHAT_ID:-}
+      # ---- 可选：邮件推送（QQ 邮箱填授权码）----
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_SENDER: ${SMTP_SENDER:-}
+      # ---- 生产模式：设为 gunicorn 启用（默认 Flask 内置服务器）----
+      SERVER: ${SERVER:-flask}
+    ports:
+      - "${WEB_PORT:-5000}:5000"
+    networks:
+      - hot-net
+
+volumes:
+  mysql-data:
+
+networks:
+  hot-net:
+    driver: bridge

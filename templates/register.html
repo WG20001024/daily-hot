@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}注册{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <form class="auth-card" method="post" action="/register">
+    <h1 class="auth-title">注册</h1>
+    {% if error %}<div class="auth-error">{{ error }}</div>{% endif %}
+    <label>用户名
+      <input type="text" name="username" required autofocus minlength="2"
+             placeholder="至少 2 个字符">
+    </label>
+    <label>邮箱（选填）
+      <input type="email" name="email" placeholder="用于找回密码（暂未开放）">
+    </label>
+    <label>密码
+      <input type="password" name="password" required minlength="6"
+             placeholder="至少 6 位">
+    </label>
+    <button class="btn btn-primary auth-btn" type="submit">注 册</button>
+    <p class="auth-alt">已有账号？<a href="/login">直接登录</a></p>
+  </form>
+</div>
+{% endblock %}

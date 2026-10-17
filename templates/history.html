@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}历史归档{% endblock %}
+{% block content %}
+<section class="page-top">
+  <h1 class="page-title">历史归档 <span class="title-sub">每日热榜快照</span></h1>
+</section>
+
+<div class="history-grid">
+  {% for d in dates %}
+  <a class="history-card" href="/?date={{ d.snapshot_date }}">
+    <div class="history-date">{{ d.snapshot_date }}</div>
+    <div class="history-meta">{{ d.item_count }} 条热点</div>
+  </a>
+  {% endfor %}
+</div>
+
+{% if not dates %}
+<div class="empty-state"><p>📭 还没有归档数据</p></div>
+{% endif %}
+{% endblock %}

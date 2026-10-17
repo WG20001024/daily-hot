@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}全文检索{{ ' · ' ~ q if q }}{% endblock %}
+{% block content %}
+<section class="page-top">
+  <div>
+    <h1 class="page-title">全文检索 <span class="title-sub">按相关度排序，支持中英文</span></h1>
+    <form id="searchForm" class="search-form" method="get" action="/search"
+          onsubmit="return checkQuery(this)">
+      <input type="search" name="q" id="qInput" value="{{ q }}" autofocus
+             placeholder="输入关键词，如：折叠屏 / Python / 医保">
+      <button class="btn btn-primary" type="submit">🔍 搜索</button>
+
+      <div class="search-filters">
+        <label>平台
+          <select name="platform" onchange="submitIfReady()">
+            <option value="">全部平台</option>
+            {% for p in platforms %}
+            <option value="{{ p.code }}" {% if platform == p.code %}selected{% endif %}>{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>日期
+          <input type="date" name="date" value="{{ current_date }}" onchange="submitIfReady()">
+        </label>
+        <label class="check-label">
+          <input type="checkbox" name="full" value="1"
+                 {% if full %}checked{% endif %} onchange="submitIfReady()">
+          同时搜索正文内容
+        </label>
+        {% if q or platform or current_date %}
+        <a class="btn btn-ghost btn-sm" href="/search">重置</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+  <div class="stats-row">
+    {% if q %}
+    <div class="stat-chip">🔍 命中 <b>{{ results | length }}</b> 条</div>
+    {% endif %}
+    {% if not ft_supported %}
+    <div class="stat-chip stat-warn">⚠️ 未启用全文索引（当前为模糊匹配）</div>
+    {% endif %}
+  </div>
+</section>
+
+{% if q %}
+{% if results %}
+<div class="result-list">
+  {% for r in results %}
+  <div class="result-card">
+    <div class="result-head">
+      <span class="platform-cat">{{ r.platform_name }}</span>
+      <span class="rank rank-{{ r.rank_no if r.rank_no <= 3 else 'n' }}">{{ r.rank_no }}</span>
+      <a class="result-title" href="/item/{{ r.id }}">{{ r.title }}</a>
+      {% if current_user %}
+      <button class="fav-btn {{ 'is-active' if r.favorited }}" data-item="{{ r.id }}"
+              onclick="toggleFavorite(this)"
+              title="{{ '取消收藏' if r.favorited else '收藏此热点' }}">★</button>
+      {% endif %}
+    </div>
+    <div class="result-meta">
+      <span>📅 {{ r.snapshot_date }}</span>
+      <span>🔥 {{ r.heat_display or r.heat_value }}</span>
+      <span class="result-score">相关度 {{ r.score }}</span>
+      <span class="result-match">{{ '正文命中' if r.match_in == 'content' else '标题命中' }}</span>
+      {% if r.hit_days > 1 %}
+      <span class="result-hit">📊 {{ r.hit_days }} 天在榜</span>
+      {% endif %}
+    </div>
+    {% if r.content_snippet %}
+    <p class="result-snippet">…{{ r.content_snippet }}…</p>
+    {% elif r.summary %}
+    <p class="result-snippet">{{ r.summary }}</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <p>🔍</p>
+  <p>没有找到与「{{ q }}」相关的热点</p>
+  <p class="empty-tip">试试更短的关键词，或去掉日期 / 平台筛选</p>
+</div>
+{% endif %}
+{% else %}
+<div class="banner banner-info">
+  输入关键词开始检索。默认只匹配标题与摘要，勾选「同时搜索正文内容」可检索已保存的新闻正文。
+  {% if not ft_supported %}
+  当前数据库未建立全文索引，已自动降级为模糊匹配；执行 <code>migrate_v4.sql</code> 可启用中文全文检索。
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function submitIfReady() {
+  const form = document.getElementById('searchForm');
+  if (form.q.value.trim()) form.submit();
+}
+
+function checkQuery(form) {
+  if (!form.q.value.trim()) {
+    form.q.focus();
+    return false;
+  }
+  return true;
+}
+</script>
+{% endblock %}
